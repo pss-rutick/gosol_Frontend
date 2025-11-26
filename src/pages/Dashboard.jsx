@@ -198,12 +198,12 @@ export default function Dashboard() {
             />
 
             {/* Main Content Area (starts after sidebar) */}
-            <div className="ml-64">
+            <div className="ml-1">
                 {/* Fixed Header */}
                 <Header userName={userName} handleLogout={handleLogout} />
 
                 {/* Page Content */}
-                <main className="pt-20 px-8 pb-12">
+                <main className="mt-2 px-8 pb-12">
                     {/* Page Title */}
                     <div className="mb-8">
                         <h1 className="text-[32px] font-semibold text-[#0000FF]">{dashboardText.appName}</h1>

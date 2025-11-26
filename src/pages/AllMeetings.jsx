@@ -23,36 +23,8 @@ const AllMeetings = () => {
       <Sidebar handleLogout={() => console.log("Logout clicked")} />
 
       {/* Main Content Area - Added margin-left to account for fixed sidebar */}
-      <main className="flex-1 ml-64">
+      <main className="flex-1">
         
-        {/* Top Header */}
-        <header className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
-          {/* ... Search and User Actions code remains the same ... */}
-          <div className="relative w-1/2 max-w-lg">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Ask AI anything about your clients..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0000FF]"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1.5 right-2 h-2 w-2 bg-[#0000FF] rounded-full border border-white"></span>
-            </button>
-            <div className="flex items-center gap-2 cursor-pointer">
-              <img
-                src="https://i.pravatar.cc/150?img=11"
-                alt="Profile"
-                className="h-8 w-8 rounded-full object-cover"
-              />
-              <span className="text-sm font-medium">Rahul S</span>
-            </div>
-          </div>
-        </header>
-
         {/* Page Content */}
         <div className="p-8">
             {/* The rest of your UI code remains exactly the same as previous */}

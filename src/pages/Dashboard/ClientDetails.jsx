@@ -1,3 +1,4 @@
+// C:\PSS\gosol\src\pages\Dashboard\ClientDetails.jsx
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { User, Video, Phone, Mail, MoreHorizontal, ArrowLeft } from 'lucide-react';
@@ -14,19 +15,25 @@ export default function ClientDetails() {
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             <Sidebar />
-            <div className="ml-64">
-                <main className="pt-8 px-8 pb-12">
+            <div className="ml-2">
+                <main className="px-8 pb-12">
 
                     {/* Top Navigation Area */}
                     <div className="flex flex-col space-y-4 mb-6">
                         <button onClick={() => navigate(-1)} className="flex items-center text-gray-500 hover:text-[#0000FF] w-fit text-sm font-medium">
                             <ArrowLeft className="w-4 h-4 mr-2" /> {pageTitle.backButton}
                         </button>
-                        <div className="flex space-x-1 bg-white p-1 rounded-lg w-fit">
+                        <div className="flex bg-white p-1 rounded-lg w-full space-x-1">
                             {tabs.map((tab) => (
-                                <button key={tab} onClick={() => setActiveTab(tab)}
-                                    className={`px-8 py-2 rounded-md text-sm font-medium transition-all ${activeTab === tab ? 'bg-[#0000FF] text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'
-                                        }`}>
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`flex-1 px-8 py-2 text-center rounded-md text-sm font-medium transition-all 
+                ${activeTab === tab
+                                            ? 'bg-[#0000FF] text-white shadow-md'
+                                            : 'text-gray-500 hover:bg-gray-100'
+                                        }`}
+                                >
                                     {tab}
                                 </button>
                             ))}

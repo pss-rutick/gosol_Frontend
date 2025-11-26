@@ -1,4 +1,4 @@
-// C:\PSS\gosol\src\pages\Dashboard\Meeting.jsx
+// C:\PSS\gosol\src\pages\Dashboard\StartMeeting.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 // Import the constants
-import { meetingData } from '../../constants/meetingData';
+import { meetingData } from '../../constants/startMeetingData';
 
 export default function Meeting() {
   const navigate = useNavigate();
