@@ -38,12 +38,47 @@ export const authAPI = {
 export const dashboardAPI = {
   getAllClients: async () => {
     try {
-      // This will now correctly point to https://appgosolapi.phylon.in/api/clients
-      const response = await axios.get(`${APP_API_URL}/clients`);
+      const response = await axios.get(`/api/clients`);
       return response.data;
     } catch (error) {
       console.error("API Fetch Error:", error);
       throw new Error("Failed to load client list");
+    }
+  },
+
+  addClient: async (clientData) => {
+    try {
+      const response = await axios.post(`/api/clients`, clientData);
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error);
+      throw new Error(error.response?.data?.message || "Failed to add client");
+    }
+  },
+};
+
+export const meetingsAPI = {
+  getAllMeetings: async () => {
+    try {
+      const response = await axios.get(`/api/meetings`);
+      return response.data;
+    } catch (error) {
+      console.error("API Fetch Error:", error);
+      throw new Error("Failed to load meetings list");
+    }
+  },
+
+  addMeeting: async (meetingData) => {
+    try {
+      const response = await axios.post(`/api/meetings`, meetingData);
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error);
+      console.error("Error Response Data:", error.response?.data);
+      console.error("Error Status:", error.response?.status);
+      console.error("Request Data:", meetingData);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data?.details || error.message;
+      throw new Error(errorMessage || "Failed to schedule meeting");
     }
   },
 };

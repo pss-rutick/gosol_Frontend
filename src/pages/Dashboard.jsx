@@ -70,7 +70,7 @@ const PriorityTaskItem = ({ type, name, details }) => (
 export default function Dashboard() {
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('dashboard');
-    const [userName] = useState('John Doe'); // Replace with real user data later
+    // const [userName] = useState('John Doe'); // Replace with real user data later
 
     // Handle logout
     const handleLogout = () => {
@@ -200,7 +200,7 @@ export default function Dashboard() {
             {/* Main Content Area (starts after sidebar) */}
             <div className="ml-1">
                 {/* Fixed Header */}
-                <Header userName={userName} handleLogout={handleLogout} />
+                <Header handleLogout={handleLogout} />
 
                 {/* Page Content */}
                 <main className="mt-2 px-8 pb-12">

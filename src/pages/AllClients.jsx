@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { dashboardAPI } from "../services/apiService";
 import { Search, TrendingUp, Users, Plus } from "lucide-react";
 import { format } from "date-fns";
+import Modal from "../components/common/Modal";
+import AddClientForm from "../components/common/AddClientForm";
 import {
   tableHeaders,
   stageColors, // Kept for future use if you map stages later
@@ -14,32 +16,40 @@ export default function AllClients() {
   const [selectedClients, setSelectedClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // Added error state for better UX
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await dashboardAPI.getAllClients();
+      console.log("API Response:", data);
+
+      // Handle both array and object responses
+      let clientsArray = [];
+      if (Array.isArray(data)) {
+        clientsArray = data;
+      } else if (data && typeof data === "object" && Array.isArray(data.data)) {
+        clientsArray = data.data;
+      } else if (data && typeof data === "object" && Array.isArray(data.clients)) {
+        clientsArray = data.clients;
+      } else {
+        console.error("Unexpected API format:", data);
+        throw new Error("Received invalid data format from server");
+      }
+
+      setClients(clientsArray);
+    } catch (error) {
+      console.error("Fetch error:", error.message);
+      setError("Failed to load clients. Please try again later.");
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const data = await dashboardAPI.getAllClients();
-        
-        // Strict check to ensure we received an array
-        if (Array.isArray(data)) {
-          setClients(data);
-        } else {
-          console.error("Unexpected API format:", data);
-          setClients([]);
-          throw new Error("Received invalid data format from server");
-        }
-      } catch (error) {
-        console.error("Fetch error:", error.message);
-        setError("Failed to load clients. Please try again later.");
-        setClients([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchClients();
   }, []);
 
@@ -84,7 +94,7 @@ export default function AllClients() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header & Add Button */}
         <div className="flex items-center justify-between mb-8">
-          <button className="flex items-center gap-2 bg-[#0000FF] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-md">
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-[#0000FF] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-md">
             <Plus size={20} /> Add New Client
           </button>
         </div>
@@ -233,6 +243,19 @@ export default function AllClients() {
           </div>
         </div>
       </div>
+
+      {/* Add Client Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Add New Client"
+        size="xl"
+      >
+        <AddClientForm
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={() => fetchClients()}
+        />
+      </Modal>
     </div>
   );
 }

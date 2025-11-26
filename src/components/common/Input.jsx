@@ -2,7 +2,7 @@
 import React from "react";
 
 function Input({ inputProps, showPasswordToggle, onTogglePassword, isPasswordVisible }) {
-    const { type, placeholder, lable, value, onChange, errors, isDisabled } = inputProps;
+    const { type, placeholder, lable, value, onChange, errors, isDisabled, name } = inputProps;
 
     // Determine the actual input type
     const inputType = showPasswordToggle && type === "password"
@@ -19,12 +19,13 @@ function Input({ inputProps, showPasswordToggle, onTogglePassword, isPasswordVis
             <div className="relative">
                 <input
                     type={inputType}
+                    name={name}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
                     disabled={isDisabled}
                     className={`w-full px-4 py-3 rounded-lg bg-gray-50 border pr-12
-                          ${errors ? 'border-red-500' : 'border-gray-200'} 
+                          ${errors ? 'border-red-500' : 'border-gray-200'}
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-500 disabled:opacity-50`}
                 />
 
