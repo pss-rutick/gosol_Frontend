@@ -10,6 +10,9 @@ import CleanLayout from "../layouts/CleanLayout";
 import Dashboard from "../pages/Dashboard";
 import AllClients from "../pages/AllClients";
 import AllMeetings from "../pages/AllMeetings";
+import PriorityTasks from "../pages/PriorityTasks";
+import AIAssistant from "../pages/AIAssistant";
+
 
 // Pages WITHOUT Sidebar + Header
 import ClientDetails from "../pages/Dashboard/ClientDetails";
@@ -26,6 +29,9 @@ const AppRouter = () => (
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/allclients" element={<AllClients />} />
         <Route path="/allmeetings" element={<AllMeetings />} />
+        {/* // Add these routes inside ProtectedLayout */}
+        <Route path="/tasks" element={<PriorityTasks />} />
+        {/* <Route path="/ai-assistant" element={<AIAssistant />} /> */}
         <Route path="/client/:id" element={<ClientDetails />} />
       </Route>
 
@@ -33,7 +39,7 @@ const AppRouter = () => (
       <Route element={<CleanLayout />}>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
     </Routes>
   </BrowserRouter>
 );

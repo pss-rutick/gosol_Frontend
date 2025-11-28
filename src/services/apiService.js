@@ -82,3 +82,51 @@ export const meetingsAPI = {
     }
   },
 };
+
+// ✅ NEW: Tasks API
+export const tasksAPI = {
+  getAllTasks: async () => {
+    try {
+      const response = await axios.get(`/api/tasks`);
+      return response.data;
+    } catch (error) {
+      console.error("Tasks API Fetch Error:", error);
+      throw new Error(error.response?.data?.message || "Failed to load tasks");
+    }
+  },
+
+  createTask: async (taskData) => {
+    try {
+      const response = await axios.post(`/api/tasks`, taskData);
+      return response.data;
+    } catch (error) {
+      console.error("Tasks API Error:", error);
+      console.error("Error Response Data:", error.response?.data);
+      console.error("Error Status:", error.response?.status);
+      console.error("Request Data:", taskData);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data?.details || error.message;
+      throw new Error(errorMessage || "Failed to create task");
+    }
+  },
+
+  // Optional: Additional methods you might need later
+  updateTask: async (taskId, taskData) => {
+    try {
+      const response = await axios.put(`/api/tasks/${taskId}`, taskData);
+      return response.data;
+    } catch (error) {
+      console.error("Update Task API Error:", error);
+      throw new Error(error.response?.data?.message || "Failed to update task");
+    }
+  },
+
+  deleteTask: async (taskId) => {
+    try {
+      const response = await axios.delete(`/api/tasks/${taskId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Delete Task API Error:", error);
+      throw new Error(error.response?.data?.message || "Failed to delete task");
+    }
+  }
+};
