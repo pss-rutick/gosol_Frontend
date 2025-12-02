@@ -35,6 +35,31 @@ export const authAPI = {
   },
 };
 
+// ✅ NEW: Clients API
+export const clientsAPI = {
+  getAllClients: async () => {
+    try {
+      const response = await axios.get(`https://appgosolapi.phylon.in/api/clients`);
+      // API returns array directly or wrapped in data object
+      console.log("getAllClients Response:", response);
+      return Array.isArray(response.data) ? response.data : response.data.data || response.data;
+    } catch (error) {
+      console.error("API Fetch Error:", error);
+      throw new Error("Failed to load client list");
+    }
+  },
+
+  getClientById: async (clientId) => {
+    try {
+      const response = await axios.get(`https://appgosolapi.phylon.in/api/clients/${clientId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Get Client By ID Error:", error);
+      throw new Error("Failed to load client details");
+    }
+  },
+};
+
 export const dashboardAPI = {
   getAllClients: async () => {
     try {
@@ -142,7 +167,7 @@ export const tasksAPI = {
 };
 
 export const aiAPI = {
-  async generateResponse({ messages, onChunk }) {
+  async generateResponse({ messages, onChunk, clientId = "10025" }) {
     try {
       let buffer = "";
       let lastProcessedIndex = 0;
@@ -151,7 +176,7 @@ export const aiAPI = {
         `https://appgosolapi.phylon.in/conversation`,
         { 
           messages, 
-          client_id: "10025"
+          client_id: clientId
         },
         {
           responseType: "text",

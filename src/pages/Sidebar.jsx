@@ -24,7 +24,7 @@ const Sidebar = ({ handleLogout }) => {
   ];
 
   return (
-    <aside className="w-64 bg-white border-gray-200 flex flex-col h-screen fixed top-0 left-0 z-40 overflow-y-auto">
+    <aside className="w-64 bg-white border-gray-200 flex flex-col  fixed top-0 left-0 z-40 overflow-y-auto">
       {/* Logo */}
       <div className="p-3 border-gray-200 flex items-center justify-center bg-white">
         <img
