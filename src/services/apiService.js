@@ -128,5 +128,79 @@ export const tasksAPI = {
       console.error("Delete Task API Error:", error);
       throw new Error(error.response?.data?.message || "Failed to delete task");
     }
+  },
+
+  getTasksByClientId: async (clientId) => {
+    try {
+      const response = await axios.get(`/api/tasks/${clientId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Get Tasks by Client ID API Error:", error);
+      throw new Error(error.response?.data?.message || "Failed to load client tasks");
+    }
   }
+};
+
+export const aiAPI = {
+  async generateResponse({ messages, onChunk }) {
+    try {
+      let buffer = "";
+      let lastProcessedIndex = 0;
+
+      const response = await axios.post(
+        `https://appgosolapi.phylon.in/conversation`,
+        { 
+          messages, 
+          client_id: "10025"
+        },
+        {
+          responseType: "text",
+          onDownloadProgress: (progressEvent) => {
+            const fullText = progressEvent.event?.target?.responseText;
+            
+            if (fullText) {
+              const newText = fullText.substring(lastProcessedIndex);
+              buffer += newText;
+              lastProcessedIndex = fullText.length;
+              
+              let startIdx = 0;
+              let braceCount = 0;
+              
+              for (let i = 0; i < buffer.length; i++) {
+                if (buffer[i] === '{') {
+                  if (braceCount === 0) startIdx = i;
+                  braceCount++;
+                } else if (buffer[i] === '}') {
+                  braceCount--;
+                  
+                  if (braceCount === 0 && startIdx !== i) {
+                    const jsonStr = buffer.substring(startIdx, i + 1);
+                    try {
+                      const parsed = JSON.parse(jsonStr);
+                      const word = parsed?.choices?.[0]?.messages?.[0]?.content;
+                      
+                      if (word && onChunk) {
+                        onChunk(word);
+                      }
+                    } catch (err) {
+                      // Silent error handling
+                    }
+                    
+                    buffer = buffer.substring(i + 1);
+                    i = -1;
+                    startIdx = 0;
+                  }
+                }
+              }
+            }
+          },
+        }
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error("Stream API Error:", error);
+      throw error;
+    }
+  },
 };

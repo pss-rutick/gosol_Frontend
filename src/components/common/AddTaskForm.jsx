@@ -78,16 +78,20 @@ const AddTaskForm = ({ onClose, onSuccess }) => {
     if (!formData.dueDate) return setErrors(prev => ({ ...prev, dueDate: "Due date is required" }));
 
     try {
+      // Convert date from YYYY-MM-DD to DD-MM-YYYY
+      const [year, month, day] = formData.dueDate.split('-');
+      const formattedDueDate = `${day}-${month}-${year}`;
+
       const payload = {
         TaskName: formData.title.trim(),
         Description: formData.description.trim(),
-        ClientName: formData.clientName, // ✅ "Prasaan kamble"
+        ClientName: formData.clientName,
         Priority: formData.priority,
-        DueDate: formData.dueDate,
+        DueDate: formattedDueDate,
         Status: "Pending"
       };
 
-      console.log("✅ Creating task with ClientName:", payload.ClientName);
+      console.log("✅ Creating task with payload:", payload);
       await tasksAPI.createTask(payload);
       
       console.log("🎉 Task created successfully!");
