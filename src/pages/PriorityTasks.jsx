@@ -18,6 +18,7 @@ import AddTaskForm from "../components/common/AddTaskForm";
 import { tasksAPI } from "../services/apiService";
 import { tasksData } from "../constants/tasksData";
 import { format } from "date-fns";
+import CommonCard from "../components/common/CommonCard";
 
 const PriorityTasks = () => {
   const [activeTab, setActiveTab] = useState("All Tasks");
@@ -116,7 +117,6 @@ const PriorityTasks = () => {
 
   return (
     <div className="flex min-h-screen bg-white font-sans text-[#1E1E1E]">
-      <Sidebar handleLogout={() => console.log("Logout clicked")} />
 
       <main className="flex-1">
         <div className="p-8">
@@ -139,20 +139,18 @@ const PriorityTasks = () => {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {tasksData.stats.map((stat) => {
+            {tasksData.stats.map((stat,index) => {
               const Icon = stat.icon;
+              const Icon2 = stat.icon2;
               return (
-                <div key={stat.id} className="border border-gray-200 rounded-xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <div>
-                    <h2 className={`text-2xl font-bold ${stat.id === 1 ? 'text-[#0000FF]' : 'text-gray-900'}`}>
-                      {stat.value}
-                    </h2>
-                    <p className="text-gray-500 text-xs font-medium mt-1">{stat.label}</p>
-                  </div>
-                  <div className={`p-3 rounded-lg ${stat.bgColor || 'bg-gray-50'}`}>
-                    <Icon className={`h-5 w-5 ${stat.textColor || 'text-gray-600'}`} />
-                  </div>
-                </div>
+                <CommonCard 
+                key={index}
+                  value={stat.value}
+                  label={stat.label}
+                  Icon={Icon}
+                  bgColor={stat.bgColor}
+                  textColor={stat.textColor}
+                />
               );
             })}
           </div>

@@ -23,7 +23,7 @@ export const dashboardText = {
       label: "Pending Tasks",
       value: "12",
       icon: 'Clock', 
-      color: 'text-red-600 bg-red-50'
+      color: 'text-red-600 bg-red-50 '
     },
   },
   

@@ -35,7 +35,7 @@ const Header = ({ userName = "User", handleLogout }) => {
     }, [dropdownRef]);
 
     return (
-        <header className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 z-30 flex items-center justify-between px-6 shadow-sm">
+        <header className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200  z-30 flex items-center justify-between px-6 shadow-sm">
             {/* Left Side - AI Search Bar */}
             <div className="flex items-center bg-gray-50 rounded-xl px-4 py-1.5 w-96 border border-gray-200 focus-within:border-[#0000FF] transition-colors">
                 <Search size={20} className="text-gray-500 mr-3" />

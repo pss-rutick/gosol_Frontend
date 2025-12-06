@@ -97,10 +97,6 @@ const AIAssistant = () => {
 
   return (
    <div className="flex h-[90vh] bg-[#F9FAFB] overflow-hidden">
-
-
-      <Sidebar />
-      
       {/* Clients Sidebar */}
       <ClientsList 
         selectedClientId={selectedClientId} 

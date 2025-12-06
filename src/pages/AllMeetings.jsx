@@ -17,6 +17,7 @@ import AddMeetingForm from "../components/common/AddMeetingForm";
 import { meetingsAPI } from "../services/apiService";
 import { meetingsData } from "../constants/meetingsData";
 import { format } from "date-fns";
+import CommonCard from "../components/common/CommonCard";
 
 const AllMeetings = () => {
   const [activeTab, setActiveTab] = useState("All Meetings");
@@ -61,21 +62,16 @@ const AllMeetings = () => {
   useEffect(() => {
     fetchMeetings();
   }, []);
-  
-  return (
-    <div className="flex min-h-screen bg-white font-sans text-[#1E1E1E]">
-      {/* Sidebar - No longer needs activeSection props */}
-      <Sidebar handleLogout={() => console.log("Logout clicked")} />
 
-      {/* Main Content Area - Added margin-left to account for fixed sidebar */}
-      <main className="flex-1">
-        
+  return (
+    <div className="min-h-screen bg-white font-sans text-[#1E1E1E] w-full">
+
         {/* Page Content */}
         <div className="p-8">
-            {/* The rest of your UI code remains exactly the same as previous */}
-            
-            {/* Title Section */}
-            <div className="flex justify-between items-start mb-8">
+          {/* The rest of your UI code remains exactly the same as previous */}
+
+          {/* Title Section */}
+          <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-2xl font-bold text-[#0000FF] mb-2">All Meetings</h1>
               <p className="text-gray-600 text-sm">
@@ -93,17 +89,13 @@ const AllMeetings = () => {
             {meetingsData.stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.id} className="border border-gray-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
-                  <div>
-                    <h2 className={`text-2xl font-bold ${stat.id === 1 ? 'text-[#0000FF]' : 'text-gray-900'}`}>
-                      {stat.value}
-                    </h2>
-                    <p className="text-gray-500 text-xs font-medium mt-1">{stat.label}</p>
-                  </div>
-                  <div className={`p-3 rounded-lg ${stat.bgColor || 'bg-gray-50'}`}>
-                    <Icon className={`h-5 w-5 ${stat.textColor || 'text-gray-600'}`} />
-                  </div>
-                </div>
+                <CommonCard 
+                  value={stat.value}
+                  label={stat.label}
+                  Icon={Icon}
+                  bgColor={stat.bgColor}
+                  textColor={stat.textColor}
+                />
               );
             })}
           </div>
@@ -114,11 +106,10 @@ const AllMeetings = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                  activeTab === tab
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === tab
                     ? "bg-[#0000FF] text-white"
                     : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {tab}
               </button>
@@ -140,59 +131,59 @@ const AllMeetings = () => {
 
           {/* Meeting List */}
           {!loading && !error && (
-          <div className="space-y-4">
-            {meetings.length > 0 ? meetings.map((meeting, index) => (
-              <div key={meeting.MeetingId || meeting.Id || meeting.id || `meeting-${index}`} className="border border-gray-200 rounded-xl p-6 bg-white hover:shadow-sm transition-shadow">
-                
-                {/* Card Header */}
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-bold text-gray-900">{meeting.Title || "Untitled Meeting"}</h3>
-                  </div>
-                </div>
+            <div className="space-y-4">
+              {meetings.length > 0 ? meetings.map((meeting, index) => (
+                <div key={meeting.MeetingId || meeting.Id || meeting.id || `meeting-${index}`} className="border border-gray-200 rounded-xl p-6 bg-white hover:shadow-sm transition-shadow">
 
-                {/* Meta Details */}
-                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-5">
-                  {meeting.Date && (
-                  <div className="flex items-center gap-1.5">
-                    <CalendarIcon className="h-4 w-4" />
-                    {typeof meeting.Date === "string" ? format(new Date(meeting.Date), "MMM d, yyyy") : "N/A"}
+                  {/* Card Header */}
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-bold text-gray-900">{meeting.Title || "Untitled Meeting"}</h3>
+                    </div>
                   </div>
-                  )}
-                  {(meeting.StartTime || meeting.startTime) && (
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" />
-                    {meeting.StartTime || meeting.startTime}{meeting.EndTime ? ` - ${meeting.EndTime}` : ""}
-                  </div>
-                  )}
-                  {(meeting.MeetingType || meeting.meetingType) && (
-                  <div className="flex items-center gap-1.5">
-                    {(meeting.MeetingType || meeting.meetingType) === "Video Call" && <Video className="h-4 w-4 text-[#0000FF]" />}
-                    {(meeting.MeetingType || meeting.meetingType) === "Phone Call" && <Phone className="h-4 w-4 text-[#0000FF]" />}
-                    {(meeting.MeetingType || meeting.meetingType) === "In-Person" && <MapPin className="h-4 w-4 text-[#0000FF]" />}
-                    <span className="text-[#0000FF] font-medium">
-                      {meeting.MeetingType || meeting.meetingType}
-                    </span>
-                  </div>
-                  )}
-                </div>
 
-                {/* Notes Box */}
-                {(meeting.AdditionalNotes || meeting.additionalNotes) && (
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                  <p className="text-sm text-gray-800 leading-relaxed">
-                    <span className="font-bold text-[#0000FF]">Notes:</span> {meeting.AdditionalNotes || meeting.additionalNotes}
-                  </p>
-                </div>
-                )}
+                  {/* Meta Details */}
+                  <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-5">
+                    {meeting.Date && (
+                      <div className="flex items-center gap-1.5">
+                        <CalendarIcon className="h-4 w-4" />
+                        {typeof meeting.Date === "string" ? format(new Date(meeting.Date), "MMM d, yyyy") : "N/A"}
+                      </div>
+                    )}
+                    {(meeting.StartTime || meeting.startTime) && (
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" />
+                        {meeting.StartTime || meeting.startTime}{meeting.EndTime ? ` - ${meeting.EndTime}` : ""}
+                      </div>
+                    )}
+                    {(meeting.MeetingType || meeting.meetingType) && (
+                      <div className="flex items-center gap-1.5">
+                        {(meeting.MeetingType || meeting.meetingType) === "Video Call" && <Video className="h-4 w-4 text-[#0000FF]" />}
+                        {(meeting.MeetingType || meeting.meetingType) === "Phone Call" && <Phone className="h-4 w-4 text-[#0000FF]" />}
+                        {(meeting.MeetingType || meeting.meetingType) === "In-Person" && <MapPin className="h-4 w-4 text-[#0000FF]" />}
+                        <span className="text-[#0000FF] font-medium">
+                          {meeting.MeetingType || meeting.meetingType}
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
-              </div>
-            )) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No meetings scheduled yet.</p>
-              </div>
-            )}
-          </div>
+                  {/* Notes Box */}
+                  {(meeting.AdditionalNotes || meeting.additionalNotes) && (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                      <p className="text-sm text-gray-800 leading-relaxed">
+                        <span className="font-bold text-[#0000FF]">Notes:</span> {meeting.AdditionalNotes || meeting.additionalNotes}
+                      </p>
+                    </div>
+                  )}
+
+                </div>
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No meetings scheduled yet.</p>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Schedule Meeting Modal */}
@@ -209,7 +200,6 @@ const AllMeetings = () => {
           </Modal>
 
         </div>
-      </main>
     </div>
   );
 };

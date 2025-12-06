@@ -14,7 +14,6 @@ export default function ClientDetails() {
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
-            <Sidebar />
             <div className="ml-2">
                 <main className="px-8 pb-12">
 

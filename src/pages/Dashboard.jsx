@@ -25,7 +25,7 @@ const Icon = ({ name, className }) => {
 
 
 // Component for the main stats cards
-const StatCard = ({ label, value, icon }) => (
+const StatCard = ({ label, value, icon,color }) => (
     <div className="bg-white rounded-lg p-5 flex items-center justify-between border border-gray-200">
         <div>
             <p className="text-base font-medium text-[#1E1E1E]">{label}</p>
@@ -189,21 +189,12 @@ export default function Dashboard() {
 
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Fixed Sidebar */}
-            <Sidebar
-                activeSection={activeSection}
-                setActiveSection={setActiveSection}
-                handleLogout={handleLogout}
-            />
-
-            {/* Main Content Area (starts after sidebar) */}
+        <div className="min-h-screen ">
+    
             <div className="ml-1">
-                {/* Fixed Header */}
-                <Header handleLogout={handleLogout} />
-
+              
                 {/* Page Content */}
-                <main className="mt-2 px-8 pb-12">
+                <main className="px-8 pb-12">
                     {/* Page Title */}
                     <div className="mb-8">
                         <h1 className="text-[32px] font-semibold text-[#0000FF]">{dashboardText.appName}</h1>

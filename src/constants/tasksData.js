@@ -9,6 +9,7 @@ export const tasksData = {
       value: "12",
       label: "Total Tasks",
       icon: CheckCircle,
+      icon2: CheckCircle,
       bgColor: "bg-blue-50",
       textColor: "text-blue-600"
     },

@@ -16,7 +16,7 @@ export default function ProtectedLayout() {
       <Sidebar handleLogout={handleLogout} />
       <div className="flex-1 ml-64">
         <Header handleLogout={handleLogout} />
-        <main className="pt-20">
+        <main className="pt-16">
           <Outlet />
         </main>
       </div>
