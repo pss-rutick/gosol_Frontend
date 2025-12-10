@@ -1,22 +1,26 @@
+// src/pages/AllClients.jsx
 import { useState, useEffect } from "react";
 import { dashboardAPI } from "../services/apiService";
-import { Search, TrendingUp, Users, Plus } from "lucide-react";
+import { Search, TrendingUp, Users, Plus, Phone, Calendar, Eye } from "lucide-react";
 import { format } from "date-fns";
 import Modal from "../components/common/Modal";
 import AddClientForm from "../components/common/AddClientForm";
+import Spinner from "../components/common/spinner";
 import {
   tableHeaders,
-  stageColors, // Kept for future use if you map stages later
   fallbackValues,
 } from "../constants/allClientsConstants";
+import { useNavigate } from "react-router-dom";
 
 export default function AllClients() {
   const [searchTerm, setSearchTerm] = useState("");
   const [clients, setClients] = useState([]);
   const [selectedClients, setSelectedClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // Added error state for better UX
+  const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchClients = async () => {
     try {
@@ -26,17 +30,15 @@ export default function AllClients() {
       const data = await dashboardAPI.getAllClients();
       console.log("API Response:", data);
 
-      // Handle both array and object responses
       let clientsArray = [];
       if (Array.isArray(data)) {
         clientsArray = data;
-      } else if (data && typeof data === "object" && Array.isArray(data.data)) {
+      } else if (data && Array.isArray(data.data)) {
         clientsArray = data.data;
-      } else if (data && typeof data === "object" && Array.isArray(data.clients)) {
+      } else if (data && Array.isArray(data.clients)) {
         clientsArray = data.clients;
       } else {
-        console.error("Unexpected API format:", data);
-        throw new Error("Received invalid data format from server");
+        throw new Error("Invalid API format");
       }
 
       setClients(clientsArray);
@@ -77,8 +79,8 @@ export default function AllClients() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg font-medium text-gray-600">Loading clients...</p>
+      <div className="flex justify-center items-center h-screen overflow-hidden">
+        <Spinner />
       </div>
     );
 
@@ -92,14 +94,18 @@ export default function AllClients() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header & Add Button */}
+
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-[#0000FF] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-md">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-[#0000FF] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-md"
+          >
             <Plus size={20} /> Add New Client
           </button>
         </div>
 
-        {/* Stats Section */}
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between">
@@ -132,13 +138,10 @@ export default function AllClients() {
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search */}
         <div className="mb-6">
           <div className="relative max-w-md">
-            <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={20}
-            />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
               placeholder="Search clients..."
@@ -153,6 +156,8 @@ export default function AllClients() {
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
+
+              {/* HEADERS */}
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-4">
@@ -165,6 +170,7 @@ export default function AllClients() {
                       }
                     />
                   </th>
+
                   {tableHeaders.map((title, index) => (
                     <th
                       key={index}
@@ -173,16 +179,20 @@ export default function AllClients() {
                       {title}
                     </th>
                   ))}
+
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
+              {/* BODY */}
               <tbody className="bg-white divide-y">
                 {filteredClients.length > 0 ? (
                   filteredClients.map((client) => (
-                    <tr
-                      key={client.ClientId}
-                      className="hover:bg-gray-50 transition"
-                    >
+                    <tr key={client.ClientId} className="hover:bg-gray-50 transition">
+
+                      {/* Checkbox */}
                       <td className="px-6 py-4">
                         <input
                           type="checkbox"
@@ -191,49 +201,73 @@ export default function AllClients() {
                         />
                       </td>
 
-                      <td className="px-6 py-4">
-                        {client.ClientId || "N/A"}
-                      </td>
+                      {/* Default Columns */}
+                      <td className="px-6 py-4">{client.ClientId || "N/A"}</td>
                       <td className="px-6 py-4">
                         {client.FirstName && client.LastName
                           ? `${client.FirstName} ${client.LastName}`
                           : client.Client || "N/A"}
                       </td>
-                      <td className="px-6 py-4">
-                        {client.ContactNumber || "N/A"}
-                      </td>
+                      <td className="px-6 py-4">{client.ContactNumber || "N/A"}</td>
                       <td className="px-6 py-4">{client.Email || "N/A"}</td>
                       <td className="px-6 py-4">
-                        {client.CreditScore
-                          ? `${client.CreditScore}/900`
-                          : "N/A"}
+                        {client.CreditScore ? `${client.CreditScore}/900` : "N/A"}
                       </td>
-
                       <td className="px-6 py-4 text-green-600 font-medium">
                         {client.LoanAmount
                           ? `₹${Number(client.LoanAmount).toLocaleString()}`
                           : "N/A"}
                       </td>
-
                       <td className="px-6 py-4">{fallbackValues.progress}</td>
                       <td className="px-6 py-4">
                         <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-200">
                           {fallbackValues.stage}
                         </span>
                       </td>
+
+                      {/* FIXED LAST MEETING COLUMN */}
                       <td className="px-6 py-4 text-gray-500 text-sm">
-                        {client.LastMeeting
-                          ? format(
-                              new Date(client.LastMeeting),
-                              "MMM d, yyyy | h:mm a"
-                            )
-                          : fallbackValues.lastMeeting}
+                        --
+                      </td>
+
+                      {/* ACTION ICONS (Matches Screenshot) */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3 text-gray-500">
+
+                          <button
+                            onClick={() => console.log("Call client", client.ClientId)}
+                            className="hover:text-blue-600 transition p-1"
+                            title="Call"
+                          >
+                            <Phone size={20} />
+                          </button>
+
+                          <button
+                            onClick={() => navigate(`/meetings/${client.ClientId}`)}
+                            className="hover:text-blue-600 transition p-1"
+                            title="Meetings"
+                          >
+                            <Calendar size={20} />
+                          </button>
+
+                          <button
+                            onClick={() => navigate(`/client/${client.ClientId}`)}
+                            className="hover:text-blue-600 transition p-1"
+                            title="View"
+                          >
+                            <Eye size={20} />
+                          </button>
+
+                        </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={tableHeaders.length + 1} className="text-center py-8 text-gray-500">
+                    <td
+                      colSpan={tableHeaders.length + 3}
+                      className="text-center py-8 text-gray-500"
+                    >
                       No clients found.
                     </td>
                   </tr>

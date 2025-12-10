@@ -39,7 +39,7 @@ export const authAPI = {
 export const clientsAPI = {
   getAllClients: async () => {
     try {
-      const response = await axios.get(`https://appgosolapi.phylon.in/api/clients`);
+      const response = await axios.get(`${APP_API_URL}/clients`);
       // API returns array directly or wrapped in data object
       console.log("getAllClients Response:", response);
       return Array.isArray(response.data) ? response.data : response.data.data || response.data;
@@ -51,7 +51,7 @@ export const clientsAPI = {
 
   getClientById: async (clientId) => {
     try {
-      const response = await axios.get(`https://appgosolapi.phylon.in/api/clients/${clientId}`);
+      const response = await axios.get(`${APP_API_URL}/clients/${clientId}`);
       return response.data;
     } catch (error) {
       console.error("Get Client By ID Error:", error);
@@ -63,7 +63,7 @@ export const clientsAPI = {
 export const dashboardAPI = {
   getAllClients: async () => {
     try {
-      const response = await axios.get(`/api/clients`);
+      const response = await axios.get(`${APP_API_URL}/clients`);
       return response.data;
     } catch (error) {
       console.error("API Fetch Error:", error);
@@ -73,11 +73,21 @@ export const dashboardAPI = {
 
   addClient: async (clientData) => {
     try {
-      const response = await axios.post(`/api/clients`, clientData);
+      const response = await axios.post(`${APP_API_URL}/clients`, clientData);
       return response.data;
     } catch (error) {
       console.error("API Error:", error);
       throw new Error(error.response?.data?.message || "Failed to add client");
+    }
+  },
+
+  getClientById: async (clientId) => {
+    try {
+      const response = await axios.get(`${APP_API_URL}/clients/${clientId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Get Client By ID Error:", error);
+      throw new Error("Failed to load client details");
     }
   },
 };
@@ -85,7 +95,7 @@ export const dashboardAPI = {
 export const meetingsAPI = {
   getAllMeetings: async () => {
     try {
-      const response = await axios.get(`/api/meetings`);
+      const response = await axios.get(`${APP_API_URL}/meetings`);
       return response.data;
     } catch (error) {
       console.error("API Fetch Error:", error);
@@ -95,7 +105,7 @@ export const meetingsAPI = {
 
   addMeeting: async (meetingData) => {
     try {
-      const response = await axios.post(`/api/meetings`, meetingData);
+      const response = await axios.post(`${APP_API_URL}/meetings`, meetingData);
       return response.data;
     } catch (error) {
       console.error("API Error:", error);
@@ -112,7 +122,7 @@ export const meetingsAPI = {
 export const tasksAPI = {
   getAllTasks: async () => {
     try {
-      const response = await axios.get(`/api/tasks`);
+      const response = await axios.get(`${APP_API_URL}/tasks`);
       return response.data;
     } catch (error) {
       console.error("Tasks API Fetch Error:", error);
@@ -122,7 +132,7 @@ export const tasksAPI = {
 
   createTask: async (taskData) => {
     try {
-      const response = await axios.post(`/api/tasks`, taskData);
+      const response = await axios.post(`${APP_API_URL}/tasks`, taskData);
       return response.data;
     } catch (error) {
       console.error("Tasks API Error:", error);
@@ -137,7 +147,7 @@ export const tasksAPI = {
   // Optional: Additional methods you might need later
   updateTask: async (taskId, taskData) => {
     try {
-      const response = await axios.put(`/api/tasks/${taskId}`, taskData);
+      const response = await axios.put(`${APP_API_URL}/tasks/${taskId}`, taskData);
       return response.data;
     } catch (error) {
       console.error("Update Task API Error:", error);
@@ -147,7 +157,7 @@ export const tasksAPI = {
 
   deleteTask: async (taskId) => {
     try {
-      const response = await axios.delete(`/api/tasks/${taskId}`);
+      const response = await axios.delete(`${APP_API_URL}/tasks/${taskId}`);
       return response.data;
     } catch (error) {
       console.error("Delete Task API Error:", error);
@@ -157,7 +167,7 @@ export const tasksAPI = {
 
   getTasksByClientId: async (clientId) => {
     try {
-      const response = await axios.get(`/api/tasks/${clientId}`);
+      const response = await axios.get(`${APP_API_URL}/tasks/${clientId}`);
       return response.data;
     } catch (error) {
       console.error("Get Tasks by Client ID API Error:", error);
@@ -173,44 +183,44 @@ export const aiAPI = {
       let lastProcessedIndex = 0;
 
       const response = await axios.post(
-        `https://appgosolapi.phylon.in/conversation`,
-        { 
-          messages, 
+        `${APP_API_URL}/conversation`,
+        {
+          messages,
           client_id: clientId
         },
         {
           responseType: "text",
           onDownloadProgress: (progressEvent) => {
             const fullText = progressEvent.event?.target?.responseText;
-            
+
             if (fullText) {
               const newText = fullText.substring(lastProcessedIndex);
               buffer += newText;
               lastProcessedIndex = fullText.length;
-              
+
               let startIdx = 0;
               let braceCount = 0;
-              
+
               for (let i = 0; i < buffer.length; i++) {
                 if (buffer[i] === '{') {
                   if (braceCount === 0) startIdx = i;
                   braceCount++;
                 } else if (buffer[i] === '}') {
                   braceCount--;
-                  
+
                   if (braceCount === 0 && startIdx !== i) {
                     const jsonStr = buffer.substring(startIdx, i + 1);
                     try {
                       const parsed = JSON.parse(jsonStr);
                       const word = parsed?.choices?.[0]?.messages?.[0]?.content;
-                      
+
                       if (word && onChunk) {
                         onChunk(word);
                       }
                     } catch (err) {
                       // Silent error handling
                     }
-                    
+
                     buffer = buffer.substring(i + 1);
                     i = -1;
                     startIdx = 0;
@@ -228,4 +238,20 @@ export const aiAPI = {
       throw error;
     }
   },
+};
+
+// ✅ NEW: Dashboard Activity API
+export const activityAPI = {
+  getRecentActivity: async () => {
+    try {
+      const response = await axios.get(`${APP_API_URL}/activity/recent`);
+
+      // API returns a single object → convert to array
+      return Array.isArray(response.data) ? response.data : [response.data];
+
+    } catch (error) {
+      console.error("Activity API Error:", error);
+      throw new Error("Failed to load recent activity");
+    }
+  }
 };

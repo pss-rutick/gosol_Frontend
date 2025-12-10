@@ -19,6 +19,8 @@ import { tasksAPI } from "../services/apiService";
 import { tasksData } from "../constants/tasksData";
 import { format } from "date-fns";
 import CommonCard from "../components/common/CommonCard";
+import Spinner from "../components/common/spinner";
+
 
 const PriorityTasks = () => {
   const [activeTab, setActiveTab] = useState("All Tasks");
@@ -31,18 +33,18 @@ const PriorityTasks = () => {
   // ✅ SAFE DATE PARSER
   const parseDate = (dateString) => {
     if (!dateString) return null;
-    
+
     // Handle DD-MM-YYYY format (API format)
     if (/^\d{2}-\d{2}-\d{4}$/.test(dateString)) {
       const [day, month, year] = dateString.split('-');
       return new Date(`${year}-${month}-${day}`);
     }
-    
+
     // Handle YYYY-MM-DD format (HTML date input)
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       return new Date(dateString);
     }
-    
+
     // Try standard Date constructor
     const date = new Date(dateString);
     return isNaN(date.getTime()) ? null : date;
@@ -58,11 +60,11 @@ const PriorityTasks = () => {
   const isOverdue = (dueDateString, status) => {
     const date = parseDate(dueDateString);
     if (!date) return false;
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time for comparison
     date.setHours(0, 0, 0, 0);
-    
+
     return date < today && !['Completed', 'completed'].includes(status);
   };
 
@@ -71,7 +73,7 @@ const PriorityTasks = () => {
       setLoading(true);
       setError(null);
       const data = await tasksAPI.getAllTasks();
-      
+
       let tasksArray = [];
       if (Array.isArray(data)) {
         tasksArray = data;
@@ -128,8 +130,8 @@ const PriorityTasks = () => {
                 Manage your high-priority tasks and stay organized. AI assistant is available for all tasks.
               </p>
             </div>
-            <button 
-              onClick={() => setIsModalOpen(true)} 
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="bg-[#0000FF] text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
             >
               <Plus className="h-4 w-4" />
@@ -139,12 +141,12 @@ const PriorityTasks = () => {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {tasksData.stats.map((stat,index) => {
+            {tasksData.stats.map((stat, index) => {
               const Icon = stat.icon;
               const Icon2 = stat.icon2;
               return (
-                <CommonCard 
-                key={index}
+                <CommonCard
+                  key={index}
                   value={stat.value}
                   label={stat.label}
                   Icon={Icon}
@@ -172,11 +174,10 @@ const PriorityTasks = () => {
                 <button
                   key={tab}
                   onClick={() => handleTabChange(tab)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    activeTab === tab
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${activeTab === tab
                       ? "bg-[#0000FF] text-white shadow-sm hover:shadow-md transform scale-105"
                       : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   {tab}
                 </button>
@@ -184,15 +185,12 @@ const PriorityTasks = () => {
             </div>
           </div>
 
-          {/* Loading State */}
           {loading && (
-            <div className="flex justify-center items-center min-h-64 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl p-8">
-              <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000FF]"></div>
-                <p className="mt-4 text-lg font-medium text-gray-600">Loading tasks...</p>
-              </div>
+            <div className="flex justify-center items-center min-h-64">
+              <Spinner />
             </div>
           )}
+
 
           {/* Error State */}
           {error && !loading && (
@@ -218,37 +216,34 @@ const PriorityTasks = () => {
                   const priorityConfig = getPriorityBadge(task.Priority || 'Medium');
                   const statusConfig = getStatusBadge(task.Status || 'Pending');
                   const StatusIcon = statusConfig.icon || Clock;
-                  
+
                   const taskDueDate = task.DueDate;
                   const overdue = isOverdue(taskDueDate, task.Status);
-                  
+
                   return (
-                    <div 
-                      key={task.id || task.TaskId || `task-${index}`} 
-                      className={`border rounded-xl p-6 bg-white hover:shadow-sm transition-all duration-200 ${
-                        overdue ? 'border-red-200 bg-red-50/30' : 'border-gray-200'
-                      }`}
+                    <div
+                      key={task.id || task.TaskId || `task-${index}`}
+                      className={`border rounded-xl p-6 bg-white hover:shadow-sm transition-all duration-200 ${overdue ? 'border-red-200 bg-red-50/30' : 'border-gray-200'
+                        }`}
                     >
                       {/* Card Header */}
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <h3 
-                            className="text-lg font-bold text-gray-900 truncate pr-2" 
+                          <h3
+                            className="text-lg font-bold text-gray-900 truncate pr-2"
                             title={task.TaskName || task.Title || "Untitled Task"}
                           >
                             {task.TaskName || task.Title || "Untitled Task"}
                           </h3>
-                          <span 
-                            className={`px-3 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
-                              priorityConfig.bg + ' ' + priorityConfig.text + ' ' + priorityConfig.border
-                            }`}
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium flex-shrink-0 ${priorityConfig.bg + ' ' + priorityConfig.text + ' ' + priorityConfig.border
+                              }`}
                           >
                             {task.Priority || "Medium"}
                           </span>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 flex-shrink-0 ml-4 ${
-                          statusConfig.bg + ' ' + statusConfig.text
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 flex-shrink-0 ml-4 ${statusConfig.bg + ' ' + statusConfig.text
+                          }`}>
                           <StatusIcon className="h-3 w-3" />
                           {task.Status || "Pending"}
                         </span>
@@ -259,7 +254,7 @@ const PriorityTasks = () => {
                         {taskDueDate && (
                           <div className="flex items-center gap-1.5">
                             <Calendar className="h-4 w-4 flex-shrink-0" />
-                            <span 
+                            <span
                               className={`font-medium ${overdue ? 'text-red-600' : ''}`}
                               title={taskDueDate}
                             >
@@ -273,8 +268,8 @@ const PriorityTasks = () => {
                         {task.ClientName && (
                           <div className="flex items-center gap-1.5">
                             <Users className="h-4 w-4 flex-shrink-0" />
-                            <span 
-                              className="truncate max-w-[150px]" 
+                            <span
+                              className="truncate max-w-[150px]"
                               title={task.ClientName}
                             >
                               {task.ClientName}
@@ -286,7 +281,7 @@ const PriorityTasks = () => {
                       {/* Description */}
                       {task.Description && (
                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 mb-4">
-                          <p 
+                          <p
                             className="text-sm text-gray-800 leading-relaxed line-clamp-3"
                             title={task.Description}
                           >
@@ -314,12 +309,12 @@ const PriorityTasks = () => {
                   <CheckCircle className="mx-auto h-12 w-12 text-gray-300 mb-6" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No tasks found</h3>
                   <p className="text-sm text-gray-500 mb-8 max-w-sm mx-auto">
-                    {searchTerm 
-                      ? "Try adjusting your search terms to find matching tasks." 
+                    {searchTerm
+                      ? "Try adjusting your search terms to find matching tasks."
                       : "Get started by creating your first priority task."
                     }
                   </p>
-                  <button 
+                  <button
                     onClick={() => setIsModalOpen(true)}
                     className="bg-[#0000FF] text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 mx-auto hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
