@@ -117,10 +117,10 @@ export default function ClientDetails() {
 
                             <div className="flex flex-wrap items-center gap-3">
                                 <button
-                                    onClick={() => navigate(`/meetings/schedule/${client.ClientId}`)}
+                                    onClick={() => navigate(`/meeting/start/${client.ClientId}`)}
                                     className="flex items-center gap-2 bg-[#0000FF] text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-blue-700 transition shadow-sm"
                                 >
-                                    <Video className="w-4 h-4" /> Schedule Meeting
+                                    <Video className="w-4 h-4" /> Start Meeting
                                 </button>
 
                                 <ActionButton icon={Phone} label="Call" />
@@ -153,7 +153,7 @@ export default function ClientDetails() {
                                 </div>
                             </SectionCard>
 
-                            <SectionCard title="Employment Information">
+                            <SectionCard title="Professional Information">
                                 <div className="space-y-5">
                                     <InfoRow label="Employment Status" value={client.EmploymentStatus} />
                                     <InfoRow label="Employer Name" value={client.EmployerName} />

@@ -1,13 +1,21 @@
+// AddMeetingForm.jsx
 import React, { useState, useEffect } from "react";
 import Input from "./Input";
-import { meetingsAPI } from "../../services/apiService";
-import { dashboardAPI } from "../../services/apiService";
+import { meetingsAPI, dashboardAPI } from "../../services/apiService";
+import axios from "axios";
 
-export default function AddMeetingForm({ onClose, onSuccess }) {
+
+export default function AddMeetingForm({
+  onClose,
+  onSuccess,
+  existingData = null,
+  isEditMode = false
+}) {
   const [loading, setLoading] = useState(false);
   const [clientsLoading, setClientsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [clients, setClients] = useState([]);
+
   const [formData, setFormData] = useState({
     ClientId: "",
     Title: "",
@@ -18,6 +26,9 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
     AdditionalNotes: "",
   });
 
+  // ==============================
+  // LOAD CLIENTS DROPDOWN
+  // ==============================
   useEffect(() => {
     const fetchClients = async () => {
       try {
@@ -37,6 +48,27 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
     fetchClients();
   }, []);
 
+  // ==============================
+  // PREFILL WHEN EDITING
+  // ==============================
+  useEffect(() => {
+    if (isEditMode && existingData) {
+      setFormData({
+        ClientId: existingData.ClientId || "",
+        Title: existingData.Title || "",
+        Date: existingData.Date || "",
+        StartTime: existingData.StartTime || "",
+        EndTime: existingData.EndTime || "",
+        MeetingType: existingData.MeetingType || "",
+        AdditionalNotes: existingData.AdditionalNotes || "",
+      });
+    }
+  }, [isEditMode, existingData]);
+
+
+  // ==============================
+  // HANDLE INPUTS
+  // ==============================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -45,39 +77,31 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
     }));
   };
 
+  // ==============================
+  // FORM SUBMIT (ADD / UPDATE)
+  // ==============================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      // Validate required fields
-      if (!formData.ClientId) {
-        throw new Error("Please select a client");
-      }
-      if (!formData.Title) {
-        throw new Error("Meeting title is required");
-      }
-      if (!formData.Date) {
-        throw new Error("Meeting date is required");
-      }
-      if (!formData.StartTime) {
-        throw new Error("Start time is required");
-      }
-      if (!formData.EndTime) {
-        throw new Error("End time is required");
-      }
-      if (!formData.MeetingType) {
-        throw new Error("Meeting type is required");
-      }
+      // Validation
+      if (!formData.ClientId) throw new Error("Please select a client");
+      if (!formData.Title) throw new Error("Meeting title is required");
+      if (!formData.Date) throw new Error("Meeting date is required");
+      if (!formData.StartTime) throw new Error("Start time is required");
+      if (!formData.EndTime) throw new Error("End time is required");
+      if (!formData.MeetingType) throw new Error("Meeting type is required");
 
-      // Find selected client to get their name
-      const selectedClient = clients.find(c => String(c.ClientId) === String(formData.ClientId));
-      if (!selectedClient) {
-        throw new Error("Selected client not found");
-      }
+      const selectedClient = clients.find(
+        (c) => String(c.ClientId) === String(formData.ClientId)
+      );
 
-      const clientName = `${selectedClient.FirstName || ""} ${selectedClient.LastName || ""}`.trim() || selectedClient.Client || "Unknown";
+      const clientName =
+        `${selectedClient?.FirstName || ""} ${selectedClient?.LastName || ""}`.trim() ||
+        selectedClient?.Client ||
+        "Unknown";
 
       const submitData = {
         ClientId: Number(formData.ClientId),
@@ -90,10 +114,27 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
         AdditionalNotes: formData.AdditionalNotes.trim() || "",
       };
 
-      console.log("Submitting meeting data:", submitData);
-      await meetingsAPI.addMeeting(submitData);
+      // ADD or UPDATE MEETING
+      if (isEditMode && existingData?.MeetingId) {
+        await meetingsAPI.updateMeeting(existingData.MeetingId, submitData);
+      } else {
+        await meetingsAPI.addMeeting(submitData);
+      }
+
+      // ================================
+      // EXTRA GET CALL AFTER SUBMIT
+      // ================================
+      try {
+        const apiUrl = import.meta.env.VITE_AUTH_API_URL + "/auth/callback";
+        const getResponse = await axios.get(apiUrl);
+
+        console.log("🔵 GET /auth/callback Response:", getResponse.data);
+      } catch (err) {
+        console.error("❌ GET API CALL FAILED:", err);
+      }
+
       onSuccess?.();
-      onClose();
+      onClose?.();
     } catch (err) {
       console.error("Form submission error:", err);
       setError(err.message);
@@ -102,18 +143,27 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
     }
   };
 
+
+  // ==============================
+  // RENDER FORM
+  // ==============================
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
           {error}
         </div>
       )}
 
-      {/* Meeting Details Section */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Meeting Details</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          {isEditMode ? "Update Meeting" : "Schedule Meeting"}
+        </h3>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* CLIENT DROPDOWN */}
           <div>
             <label className="block mb-1 text-sm font-medium">Select Client *</label>
             <select
@@ -121,8 +171,7 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
               value={formData.ClientId}
               onChange={handleChange}
               disabled={clientsLoading}
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:opacity-50"
-              required
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
             >
               <option value="">
                 {clientsLoading ? "Loading clients..." : "Select a client"}
@@ -144,7 +193,6 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
               onChange: handleChange,
               name: "Title",
             }}
-            showPasswordToggle={false}
           />
 
           <Input
@@ -155,7 +203,6 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
               onChange: handleChange,
               name: "Date",
             }}
-            showPasswordToggle={false}
           />
 
           <Input
@@ -166,7 +213,6 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
               onChange: handleChange,
               name: "StartTime",
             }}
-            showPasswordToggle={false}
           />
 
           <Input
@@ -177,7 +223,6 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
               onChange: handleChange,
               name: "EndTime",
             }}
-            showPasswordToggle={false}
           />
 
           <div>
@@ -186,8 +231,7 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
               name="MeetingType"
               value={formData.MeetingType}
               onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              required
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
             >
               <option value="">Select meeting type</option>
               <option value="Video Call">Video Call</option>
@@ -195,37 +239,43 @@ export default function AddMeetingForm({ onClose, onSuccess }) {
               <option value="In-Person">In-Person</option>
             </select>
           </div>
+
         </div>
       </div>
 
-      {/* Additional Notes Section */}
+      {/* NOTES */}
       <div>
         <label className="block mb-1 text-sm font-medium">Additional Notes</label>
         <textarea
           name="AdditionalNotes"
           value={formData.AdditionalNotes}
           onChange={handleChange}
-          placeholder="Enter any additional notes or details about the meeting"
           rows="4"
-          className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-500"
+          className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
+          placeholder="Enter any details..."
         />
       </div>
 
-      {/* Form Actions */}
+      {/* ACTION BUTTONS */}
       <div className="flex gap-4 pt-6 border-t">
         <button
           type="button"
           onClick={onClose}
-          className="flex-1 px-6 py-3 rounded-lg border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition"
+          className="flex-1 px-6 py-3 rounded-lg border"
         >
           Cancel
         </button>
+
         <button
           type="submit"
           disabled={loading || clientsLoading}
-          className="flex-1 px-6 py-3 rounded-lg bg-[#0000FF] text-white font-medium hover:bg-blue-700 transition disabled:opacity-50"
+          className="flex-1 px-6 py-3 rounded-lg bg-[#0000FF] text-white"
         >
-          {loading ? "Scheduling..." : "Schedule Meeting"}
+          {loading
+            ? "Saving..."
+            : isEditMode
+              ? "Update Meeting"
+              : "Schedule Meeting"}
         </button>
       </div>
     </form>

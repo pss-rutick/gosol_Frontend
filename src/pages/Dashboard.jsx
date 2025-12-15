@@ -1,21 +1,12 @@
 // C:\PSS\gosol\src\pages\Dashboard.jsx
 
-import {
-    Users,
-    Calendar,
-    Clock,
-    Plus,
-    Video,
-    FileText,
-    ChevronRight
-} from "lucide-react";
-
+import { Users, Calendar, Clock, Plus, Video, FileText, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { dashboardText } from "../constants/dashboardText";
-import { activityAPI, tasksAPI } from "../services/apiService";   // ✅ UPDATED
+import { activityAPI, tasksAPI } from "../services/apiService";
 import AllClients from "./AllClients";
+import AddClientForm from "../components/common/AddClientForm";
 
 // ---------------- ICON Renderer ----------------
 const Icon = ({ name, className }) => {
@@ -61,9 +52,7 @@ const ClientActivityItem = ({ client_name, description, title, tag, onClick }) =
             {client_name} - <span className="text-[#0000FF]">{title}</span>
         </p>
 
-        <p className="font-medium text-base text-[#1E1E1E] mt-1">
-            {description}
-        </p>
+        <p className="font-medium text-base text-[#1E1E1E] mt-1">{description}</p>
 
         <span className="inline-block mt-2 px-2 py-1 text-sm font-medium rounded-full border bg-white border-gray-200">
             {tag}
@@ -89,25 +78,21 @@ export default function Dashboard() {
 
     const [activeSection] = useState("dashboard");
 
-    // ------------------------------------------------------------------
-    // 🔵 CLIENT ACTIVITY API STATE
-    // ------------------------------------------------------------------
     const [clientActivity, setClientActivity] = useState([]);
     const [loadingActivity, setLoadingActivity] = useState(true);
     const [errorActivity, setErrorActivity] = useState(null);
 
-    // ------------------------------------------------------------------
-    // 🔵 PRIORITY TASKS STATE (HIGH ONLY)
-    // ------------------------------------------------------------------
     const [priorityTasks, setPriorityTasks] = useState([]);
     const [loadingTasks, setLoadingTasks] = useState(true);
     const [tasksError, setTasksError] = useState(null);
+
+    // ✅ Modal state for Add Client
+    const [showAddClient, setShowAddClient] = useState(false);
 
     // ------------------------------------------------------------------
     // 🔵 FETCH DATA ON LOAD
     // ------------------------------------------------------------------
     useEffect(() => {
-        // Load Client Activity
         const loadActivity = async () => {
             try {
                 const data = await activityAPI.getRecentActivity();
@@ -119,15 +104,12 @@ export default function Dashboard() {
             }
         };
 
-        // Load Tasks (High Priority Only)
         const loadTasks = async () => {
             try {
                 const allTasks = await tasksAPI.getAllTasks();
-
                 const highPriority = allTasks.filter(
                     (task) => task.Priority?.toLowerCase() === "high"
                 );
-
                 setPriorityTasks(highPriority);
             } catch (err) {
                 setTasksError("Failed to load tasks");
@@ -140,15 +122,13 @@ export default function Dashboard() {
         loadTasks();
     }, []);
 
-    const stats = Object.values(dashboardText.stats);
-
     // =====================================================================
     //                        DASHBOARD VIEW
     // =====================================================================
     const DashboardView = () => (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* ---------------- LEFT COLUMN: CLIENT ACTIVITY ---------------- */}
+
+            {/* ---------------- LEFT COLUMN ---------------- */}
             <div className="lg:col-span-2">
                 <div className="bg-white p-6 rounded-xl shadow-sm border-gray-200">
                     <div className="flex items-center justify-between mb-4">
@@ -158,8 +138,7 @@ export default function Dashboard() {
                             className="text-[#0000FF] text-lg font-semibold flex items-center"
                             onClick={() => navigate("/allclients")}
                         >
-                            View All Clients
-                            <ChevronRight className="w-4 h-4 ml-1" />
+                            View All Clients <ChevronRight className="w-4 h-4 ml-1" />
                         </button>
                     </div>
 
@@ -192,6 +171,11 @@ export default function Dashboard() {
                         {dashboardText.quickActions.map((action, index) => (
                             <button
                                 key={index}
+                                onClick={() => {
+                                    if (action.label === "Add New Client") {
+                                        setShowAddClient(true);
+                                    }
+                                }}
                                 className={`w-full flex items-center justify-center p-3 rounded-lg font-medium transition-colors duration-150 ${
                                     action.primary
                                         ? "bg-[#0000FF] text-white text-[18px]"
@@ -219,7 +203,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="divide-y divide-gray-100">
-
                         {loadingTasks ? (
                             <p className="text-gray-500 py-2">Loading tasks...</p>
                         ) : tasksError ? (
@@ -236,10 +219,8 @@ export default function Dashboard() {
                                 />
                             ))
                         )}
-
                     </div>
                 </div>
-
             </div>
         </div>
     );
@@ -250,7 +231,6 @@ export default function Dashboard() {
     const renderContent = () => {
         if (activeSection === "dashboard") return <DashboardView />;
         if (activeSection === "clients") return <AllClients />;
-
         return <div className="text-center py-10 text-gray-500">Section not found</div>;
     };
 
@@ -260,11 +240,11 @@ export default function Dashboard() {
                 <main className="px-8 pb-12">
 
                     {/* Header */}
-                    <div className="mb-8">
-                        <h1 className="text-[32px] font-semibold text-[#0000FF]">
+                    <div className="mb-4 mt-4">
+                        <h1 className="text-[26px] font-semibold text-[#0000FF]">
                             {dashboardText.appName}
                         </h1>
-                        <p className="text-[26px] font-medium text-[#1E1E1E]">
+                        <p className="text-[20px] font-medium text-[#1E1E1E]">
                             {dashboardText.welcomeMessage}
                         </p>
                     </div>
@@ -279,6 +259,37 @@ export default function Dashboard() {
                     {renderContent()}
                 </main>
             </div>
+
+            {/* --------------------------------------------------------------- */}
+            {/*                ADD CLIENT POPUP MODAL (FULL WORKING)           */}
+            {/* --------------------------------------------------------------- */}
+            {showAddClient && (
+                <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-4xl max-h-[90vh] overflow-y-auto">
+
+                        {/* Modal Header */}
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold text-[#0000FF]">
+                                Add New Client
+                            </h2>
+                            <button
+                                onClick={() => setShowAddClient(false)}
+                                className="text-gray-600 text-xl hover:text-black"
+                            >
+                                ✖
+                            </button>
+                        </div>
+
+                        {/* Add Client Form */}
+                        <AddClientForm
+                            onClose={() => setShowAddClient(false)}
+                            onSuccess={() => {
+                                setShowAddClient(false);
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

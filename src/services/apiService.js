@@ -1,3 +1,5 @@
+// apiservices
+
 import axios from "axios";
 
 // Access environment variables
@@ -116,6 +118,35 @@ export const meetingsAPI = {
       throw new Error(errorMessage || "Failed to schedule meeting");
     }
   },
+
+  updateMeeting: async (meetingId, meetingData) => {
+    try {
+      const response = await axios.put(`${APP_API_URL}/meetings/${meetingId}`, meetingData);
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message;
+      throw new Error(errorMessage || "Failed to update meeting");
+    }
+  },
+
+  deleteMeeting: async (meetingId) => {
+    try {
+      const response = await axios.delete(`${APP_API_URL}/meetings/${meetingId}`);
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message;
+      throw new Error(errorMessage || "Failed to delete meeting");
+    }
+  }
+
 };
 
 // ✅ NEW: Tasks API

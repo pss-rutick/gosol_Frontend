@@ -20,6 +20,8 @@ import AIAssistant from "../pages/AIAssistant";
 
 // Pages WITHOUT Sidebar + Header
 import ClientDetails from "../pages/Dashboard/ClientDetails";
+import StartMeeting from "../pages/Dashboard/StartMeeting";
+import TaskDetails from "../pages/View_Details/TaskDetails";
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -29,6 +31,7 @@ const AppRouter = () => (
       <Route element={<CleanLayout />}>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/meeting/start/:clientId" element={<StartMeeting />} />
       </Route>
 
       {/* Protected Routes (with sidebar and access control) */}
@@ -39,6 +42,7 @@ const AppRouter = () => (
         <Route path="/tasks" element={<PriorityTasks />} />
         <Route path="/ai-assistant" element={<AIAssistant />} />
         <Route path="/client/:id" element={<ClientDetails />} />
+        <Route path="/task/:id" element={<TaskDetails />} />
       </Route>
 
       {/* Redirect unknown routes */}

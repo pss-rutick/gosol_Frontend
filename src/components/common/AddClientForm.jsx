@@ -1,3 +1,4 @@
+// AddClientForm.jsx
 import React, { useState } from "react";
 import Input from "./Input";
 import { dashboardAPI } from "../../services/apiService";
@@ -223,7 +224,7 @@ export default function AddClientForm({ onClose, onSuccess }) {
 
       {/* Employment Information Section */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Employment Information</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Professional Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 text-sm font-medium">Employment Status</label>
@@ -234,6 +235,7 @@ export default function AddClientForm({ onClose, onSuccess }) {
               className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             >
               <option value="">Select employment status</option>
+              <option value="Bussiness">Bussiness</option>
               <option value="Salaried">Salaried</option>
               <option value="Self-Employed">Self-Employed</option>
               <option value="Unemployed">Unemployed</option>
